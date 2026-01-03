@@ -8,6 +8,7 @@ import MoodStats from '@/Components/MoodStats.vue';
 import ViewModeSelector from '@/Components/ViewModeSelector.vue';
 import { getWeekStart, formatWeekRange, getMonthName } from '@/utils/dateUtils';
 import axios from 'axios';
+import DailyChart from '@/Components/DailyChart.vue';
 
 const currentYear = ref(new Date().getFullYear());
 const moods = ref([]);
@@ -104,7 +105,6 @@ const changeWeek = (delta) => {
     const newWeekStart = new Date(currentWeekStart.value);
     newWeekStart.setDate(newWeekStart.getDate() + (delta * 7));
 
-    // Check if year changed
     if (newWeekStart.getFullYear() !== currentYear.value) {
         currentYear.value = newWeekStart.getFullYear();
         fetchMoods();
@@ -145,6 +145,34 @@ const canGoNext = computed(() => {
     }
     return false;
 });
+
+const chartData = computed(() => {
+    return {
+        chart: {
+            type: 'spline',
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            type: 'datetime',
+        },
+        yAxis: {
+            title: {
+                text: ''
+            },
+            min: 1,
+            max: 10
+        },
+        series: [{
+            name: 'Mood Score',
+            data: moods.value.map(entry => [
+                new Date(entry.date).getTime(),
+                entry.score
+            ]),
+        }]
+    }
+})
 
 onMounted(() => {
     fetchMoods();
@@ -220,7 +248,7 @@ onMounted(() => {
             </div>
         </template>
 
-        <div class="py-12">
+        <div class="py-6">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div v-if="loading" class="text-center py-12">
                     <div class="text-gray-600">Loading...</div>
@@ -248,6 +276,9 @@ onMounted(() => {
                             :current-month="currentMonth"
                             :current-week-start="currentWeekStart"
                         />
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mt-6">
+                            <DailyChart :chartOptions="chartData" />
+                        </div>
                     </div>
                 </div>
             </div>
