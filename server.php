@@ -10,8 +10,10 @@ $uri = urldecode(
 );
 
 if ($uri !== '/' && file_exists($file = __DIR__.'/public'.$uri)) {
-    header('Content-type: '.get_mime_type($file).'; charset: UTF-8;');
-    echo require $file;
+    $mime = get_mime_type($file);
+    header('Content-Type: '.$mime);
+    readfile($file);
+    return;
 } else {
     require_once __DIR__.'/public/index.php';
 }
