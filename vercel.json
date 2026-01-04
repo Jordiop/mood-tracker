@@ -22,6 +22,8 @@
         "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp/views",
         "SSR_TEMP_PATH": "/tmp/ssr",
-        "NODE_PATH": "node"
+        "NODE_PATH": "node",
+        "HTTPS": "on",
+        "APP_FORCE_HTTPS": "true"
     }
 }
