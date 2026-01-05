@@ -3,28 +3,28 @@
  */
 
 /**
- * Get the start of the week (Sunday) for a given date
+ * Get the start of the week (Monday) for a given date
  * @param {Date} date - The date to find the week start for
- * @returns {Date} - The Sunday of that week
+ * @returns {Date} - The Monday of that week
  */
 export function getWeekStart(date) {
     const d = new Date(date);
-    const day = d.getDay(); // 0 = Sunday
-    const diff = d.getDate() - day;
-    d.setDate(diff);
+    const day = d.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const diff = day === 0 ? -6 : 1 - day; // If Sunday, go back 6 days; otherwise go back to Monday
+    d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
     return d;
 }
 
 /**
- * Get the end of the week (Saturday) for a given date
+ * Get the end of the week (Sunday) for a given date
  * @param {Date} date - The date to find the week end for
- * @returns {Date} - The Saturday of that week
+ * @returns {Date} - The Sunday of that week
  */
 export function getWeekEnd(date) {
     const d = new Date(date);
     const day = d.getDay(); // 0 = Sunday
-    const diff = 6 - day;
+    const diff = day === 0 ? 0 : 7 - day; // If Sunday, it's the end; otherwise calculate days to Sunday
     d.setDate(d.getDate() + diff);
     d.setHours(23, 59, 59, 999);
     return d;
@@ -32,8 +32,8 @@ export function getWeekEnd(date) {
 
 /**
  * Get an array of 7 dates for a given week
- * @param {Date} weekStart - The start date of the week (Sunday)
- * @returns {Date[]} - Array of 7 dates from Sunday to Saturday
+ * @param {Date} weekStart - The start date of the week (Monday)
+ * @returns {Date[]} - Array of 7 dates from Monday to Sunday
  */
 export function getDaysInWeek(weekStart) {
     const days = [];
@@ -47,7 +47,7 @@ export function getDaysInWeek(weekStart) {
 
 /**
  * Get a 2D array of dates organized by weeks for a given month
- * Each week starts on Sunday and ends on Saturday
+ * Each week starts on Monday and ends on Sunday
  * Includes days from previous/next month to fill complete weeks
  * @param {number} year - The year
  * @param {number} month - The month (0-11)
@@ -110,9 +110,9 @@ export function formatWeekRange(weekStart) {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
-    const startMonth = weekStart.toLocaleDateString('en-US', { month: 'short' });
+    const startMonth = weekStart.toLocaleDateString('es-ES', { month: 'short' });
     const startDay = weekStart.getDate();
-    const endMonth = weekEnd.toLocaleDateString('en-US', { month: 'short' });
+    const endMonth = weekEnd.toLocaleDateString('es-ES', { month: 'short' });
     const endDay = weekEnd.getDate();
     const year = weekEnd.getFullYear();
 
@@ -141,7 +141,7 @@ export function getMonthName(month) {
  * @returns {string[]} - Array of short day names
  */
 export function getDayNames() {
-    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 }
 
 /**
