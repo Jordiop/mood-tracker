@@ -108,7 +108,7 @@ const monthGrid = computed(() => {
 });
 
 const weekGrid = computed(() => {
-    if (!props.currentWeekStart) {
+    if (!props.currentWeekStart || !(props.currentWeekStart instanceof Date)) {
         return [];
     }
     const days = getDaysInWeek(props.currentWeekStart);

@@ -10,6 +10,7 @@ import { getWeekStart, formatWeekRange, getMonthName } from '@/utils/dateUtils';
 import axios from 'axios';
 import DailyChart from '@/Components/DailyChart.vue';
 
+const minimumYear = 2024;
 const currentYear = ref(new Date().getFullYear());
 const moods = ref([]);
 const showModal = ref(false);
@@ -129,6 +130,8 @@ const handleViewModeChange = (newMode) => {
         currentYear.value = now.getFullYear();
         currentMonth.value = now.getMonth();
     }
+
+    fetchMoods();
 };
 
 const canGoNext = computed(() => {
@@ -144,6 +147,25 @@ const canGoNext = computed(() => {
         return currentWeekStart.value < nowWeekStart;
     }
     return false;
+});
+
+const canGoPrevious = computed(() => {
+    if (viewMode.value === 'year') {
+        return currentYear.value > minimumYear;
+    } else if (viewMode.value === 'month') {
+        return currentYear.value > minimumYear ||
+               (currentYear.value === minimumYear && currentMonth.value > 0);
+    } else if (viewMode.value === 'week') {
+        const minDate = new Date(minimumYear, 0, 1);
+        const minWeekStart = getWeekStart(minDate);
+        return currentWeekStart.value > minWeekStart;
+    }
+    return true;
+});
+
+const weekStartDate = computed(() => {
+    if (!currentWeekStart.value) return null;
+    return new Date(currentWeekStart.value.getTime());
 });
 
 const chartData = computed(() => {
@@ -193,7 +215,8 @@ onMounted(() => {
                     <div v-if="viewMode === 'year'" class="flex items-center gap-3">
                         <button
                             @click="changeYear(-1)"
-                            class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                            :disabled="!canGoPrevious"
+                            class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             ← Previous Year
                         </button>
@@ -210,7 +233,8 @@ onMounted(() => {
                     <div v-else-if="viewMode === 'month'" class="flex items-center gap-3">
                         <button
                             @click="changeMonth(-1)"
-                            class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                            :disabled="!canGoPrevious"
+                            class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             ← Previous
                         </button>
@@ -229,7 +253,8 @@ onMounted(() => {
                     <div v-else-if="viewMode === 'week'" class="flex items-center gap-3">
                         <button
                             @click="changeWeek(-1)"
-                            class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                            :disabled="!canGoPrevious"
+                            class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             ← Previous
                         </button>
@@ -267,7 +292,7 @@ onMounted(() => {
                                 :year="currentYear"
                                 :view-mode="viewMode"
                                 :current-month="currentMonth"
-                                :current-week-start="currentWeekStart"
+                                :current-week-start="weekStartDate"
                                 @day-click="handleDayClick"
                             />
                         </div>
@@ -279,7 +304,7 @@ onMounted(() => {
                             :year="currentYear"
                             :view-mode="viewMode"
                             :current-month="currentMonth"
-                            :current-week-start="currentWeekStart"
+                            :current-week-start="weekStartDate"
                         />
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mt-6">
                             <DailyChart :chartOptions="chartData" />
